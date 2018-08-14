@@ -1,0 +1,56 @@
+---
+
+- block:
+    - name: Get VPC facts
+      os_networks_facts:
+        cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+        name: "{{ cloud_vpn_initiator_vpc_id }}"
+
+    - name: Set VPC subnet ID
+      set_fact:
+        cloud_vpn_initiator_subnet_id: "{{ openstack_networks[0]['subnets'][0] }}"
+
+    - name: Generate initiator provision template
+      template:
+        src: openstack/initiator/provision_in_existing_vpc.j2
+        dest: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
+  when: cloud_vpn_initiator_vpc_id is defined
+
+- name: Generate initiator provision template
+  template:
+    src: openstack/initiator/provision.j2
+    dest: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
+  when: cloud_vpn_initiator_vpc_id is not defined
+
+- name: Create initiator stack
+  os_stack:
+    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-initiator-stack"
+    template: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
+
+- name: Get instance facts
+  os_server_facts:
+    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+    server: "{{ cloud_vpn_name }}-initiator-instance"
+  register: out
+
+- name: Set initiator IP
+  set_fact:
+    cloud_vpn_initiator_public_ip: "{{ openstack_servers[0]['interface_ip'] }}"
+
+- name: Add initiator host
+  add_host:
+    name: initiator
+    ansible_host: "{{ cloud_vpn_initiator_public_ip }}"
+    ansible_user: "{{ cloud_vpn_initiator_user }}"
+    ansible_connection: "{{ cloud_vpn_initiator_ansible_connection }}"
+    ansible_network_os: "{{ cloud_vpn_initiator_ansible_network_os }}"
+
+- name: Wait for SSH port to be reachable
+  wait_for:
+    host: "{{ cloud_vpn_initiator_public_ip }}"
+    port: 22
+
+- name: Pause for SSH daemon to settle and accept connections
+  pause:
+    seconds: "{{ cloud_vpn_pause_before_config_seconds }}"
