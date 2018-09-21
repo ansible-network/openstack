@@ -2,6 +2,15 @@
 Ansible Network azure
 =====================
 
+v2.6.1
+========
+
+Minor Changes
+-------------
+
+- Parameterize instance size.
+
+
 v2.6.0
 ======
 
