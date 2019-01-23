@@ -5,7 +5,7 @@ are designed to work with OpenStack.
 
 ## Requirements
 
-* Ansible 2.6 or later
+* Ansible 2.7 or later
 * Ansible Network Engine Role 2.6.0 or later
 
 ## Functions
