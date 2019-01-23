@@ -1,0 +1,4 @@
+major_changes:
+- 2.7 release of the ``openstack`` Ansible role.
+bugfixes:
+- Use instance size var in all templates
