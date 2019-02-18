@@ -1,0 +1,21 @@
+---
+
+- name: Generate initiator network template
+  template:
+    src: cloud_vpn/provisioners/openstack_network/initiator/provision.j2
+    dest: "/tmp/{{ cloud_vpn_name }}-initiator-network.template"
+
+- name: Create initiator network stack
+  os_stack:
+    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-initiator-stack"
+    template: "/tmp/{{ cloud_vpn_name }}-initiator-network.template"
+  register: stack_out
+
+- name: Set cloud_vpn_initiator_subnet_id fact
+  set_fact:
+    cloud_vpn_initiator_network_id: "{{ stack_out['stack']['outputs'][0]['output_value'] }}"
+
+- name: Set cloud_vpn_initiator_subnet_id fact
+  set_fact:
+    cloud_vpn_initiator_subnet_id: "{{ stack_out['stack']['outputs'][1]['output_value'] }}"

@@ -1,0 +1,17 @@
+---
+
+- name: Generate initiator instance template
+  template:
+    src: cloud_vpn/provisioners/openstack_instance/initiator/provision.j2
+    dest: "/tmp/{{ cloud_vpn_name }}-initiator-instance.template"
+
+- name: Create initiator instance stack
+  os_stack:
+    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-initiator-instance-stack"
+    template: "/tmp/{{ cloud_vpn_name }}-initiator-instance.template"
+  register: stack_out
+
+- name: Set cloud_vpn_initiator_public_ip fact
+  set_fact:
+    cloud_vpn_initiator_public_ip: "{{ stack_out['stack']['outputs'][0]['output_value'] }}"

@@ -1,0 +1,12 @@
+---
+
+- name: Generate responder router template
+  template:
+    src: cloud_vpn/provisioners/openstack_router/responder/provision.j2
+    dest: "/tmp/{{ cloud_vpn_name }}-responder-router.template"
+
+- name: Create responder router stack
+  os_stack:
+    cloud: "{{ cloud_vpn_responder_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-responder-router-stack"
+    template: "/tmp/{{ cloud_vpn_name }}-responder-router.template"

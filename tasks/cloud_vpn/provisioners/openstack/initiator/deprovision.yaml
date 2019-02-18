@@ -1,7 +1,12 @@
 ---
 
-- name: Delete initiator stack
-  os_stack:
-    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
-    name: "{{ cloud_vpn_name }}-initiator-stack"
-    state: absent
+- name: Include openstack_instance deprovisioner tasks
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_instance/initiator/deprovision.yaml"
+
+- name: Include openstack_router deprovisioner tasks if needed
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_router/initiator/deprovision.yaml"
+  when: cloud_vpn_initiator_manage_gw
+
+- name: Include openstack_network deprovisioner tasks if needed
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_network/initiator/deprovision.yaml"
+  when: cloud_vpn_initiator_manage_vpc

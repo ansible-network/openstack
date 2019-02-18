@@ -1,0 +1,13 @@
+heat_template_version: 2015-04-30
+
+resources:
+  router:
+    type: OS::Neutron::Router
+    properties:
+      name: {{ cloud_vpn_name }}-responder-router
+      external_gateway_info: { network: {{ cloud_vpn_responder_floating_network_id }} }
+  routerinterface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet: {{ cloud_vpn_responder_subnet_id }}
