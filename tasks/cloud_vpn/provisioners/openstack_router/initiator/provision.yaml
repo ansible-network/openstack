@@ -1,0 +1,12 @@
+---
+
+- name: Generate initiator router template
+  template:
+    src: cloud_vpn/provisioners/openstack_router/initiator/provision.j2
+    dest: "/tmp/{{ cloud_vpn_name }}-initiator-router.template"
+
+- name: Create initiator router stack
+  os_stack:
+    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-initiator-router-stack"
+    template: "/tmp/{{ cloud_vpn_name }}-initiator-router.template"

@@ -1,7 +1,12 @@
 ---
 
-- name: Delete responder stack
-  os_stack:
-    cloud: "{{ cloud_vpn_responder_openstack_cloud }}"
-    name: "{{ cloud_vpn_name }}-responder-stack"
-    state: absent
+- name: Include openstack_instance deprovisioner tasks
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_instance/responder/deprovision.yaml"
+
+- name: Include openstack_router deprovisioner tasks if needed
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_router/responder/deprovision.yaml"
+  when: cloud_vpn_responder_manage_gw
+
+- name: Include openstack_network deprovisioner tasks if needed
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_network/responder/deprovision.yaml"
+  when: cloud_vpn_responder_manage_vpc

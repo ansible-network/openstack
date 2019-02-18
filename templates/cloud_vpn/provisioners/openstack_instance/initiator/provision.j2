@@ -1,17 +1,6 @@
 heat_template_version: 2015-04-30
 
 resources:
-  network:
-    type: OS::Neutron::Net
-    properties:
-      name: {{ cloud_vpn_name }}-initiator-network
-  subnet:
-    type: OS::Neutron::Subnet
-    properties:
-      name: {{ cloud_vpn_name }}-initiator-subnet
-      network_id: { get_resource: network }
-      cidr: {{ cloud_vpn_initiator_cidr }}
-      dns_nameservers: [ "8.8.8.8", "8.8.4.4" ]
   security_group:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -32,27 +21,17 @@ resources:
   port:
     type: OS::Neutron::Port
     properties:
-      network: { get_resource: network }
+      network: {{ cloud_vpn_initiator_network_id }}
       fixed_ips:
         - ip_address: {{ cloud_vpn_initiator_private_ip }}
-          subnet_id: { get_resource: subnet }
+          subnet_id: {{ cloud_vpn_initiator_subnet_id }}
       security_groups:
         - { get_resource: security_group }
   floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network_id: {{ cloud_vpn_initiator_openstack_external_network}}
+      floating_network_id: {{ cloud_vpn_initiator_floating_network_id }}
       port_id: { get_resource: port }
-  router:
-    type: OS::Neutron::Router
-    properties:
-      name: {{ cloud_vpn_name }}-initiator-router
-      external_gateway_info: { network: {{ cloud_vpn_initiator_openstack_external_network }} }
-  routerinterface:
-    type: OS::Neutron::RouterInterface
-    properties:
-      router_id: { get_resource: router }
-      subnet: { get_resource: subnet }
   instance:
     type: OS::Nova::Server
     properties:
@@ -62,3 +41,6 @@ resources:
       flavor: {{ cloud_vpn_initiator_instance_size }}
       networks:
         - port: { get_resource: port }
+outputs:
+  floating_ip:
+    value: { get_attr: [floating_ip, floating_ip_address] }

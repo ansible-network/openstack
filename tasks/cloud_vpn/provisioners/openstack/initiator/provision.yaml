@@ -1,39 +1,12 @@
 ---
 
-- block:
-    - name: Get VPC facts
-      os_networks_facts:
-        cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
-        name: "{{ cloud_vpn_initiator_vpc_id }}"
+- name: Include openstack_network provisioner tasks
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_network/initiator/provision.yaml"
+  when: cloud_vpn_initiator_manage_vpc
 
-    - name: Set VPC subnet ID
-      set_fact:
-        cloud_vpn_initiator_subnet_id: "{{ openstack_networks[0]['subnets'][0] }}"
+- name: Include openstack_router provisioner tasks
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_router/initiator/provision.yaml"
+  when: cloud_vpn_initiator_manage_gw
 
-    - name: Generate initiator provision template
-      template:
-        src: cloud_vpn/provisioners/openstack/initiator/provision_in_existing_vpc.j2
-        dest: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
-  when: cloud_vpn_initiator_vpc_id is defined
-
-- name: Generate initiator provision template
-  template:
-    src: cloud_vpn/provisioners/openstack/initiator/provision.j2
-    dest: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
-  when: cloud_vpn_initiator_vpc_id is not defined
-
-- name: Create initiator stack
-  os_stack:
-    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
-    name: "{{ cloud_vpn_name }}-initiator-stack"
-    template: "/tmp/{{ cloud_vpn_name }}-initiator-provision.template"
-
-- name: Get instance facts
-  os_server_facts:
-    cloud: "{{ cloud_vpn_initiator_openstack_cloud }}"
-    server: "{{ cloud_vpn_name }}-initiator-instance"
-  register: out
-
-- name: Set initiator IP
-  set_fact:
-    cloud_vpn_initiator_public_ip: "{{ openstack_servers[0]['interface_ip'] }}"
+- name: Include openstack_instance provisioner tasks
+  include_tasks: "{{ role_path }}/tasks/cloud_vpn/provisioners/openstack_instance/initiator/provision.yaml"

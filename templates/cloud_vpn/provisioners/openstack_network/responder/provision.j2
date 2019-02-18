@@ -1,0 +1,19 @@
+heat_template_version: 2015-04-30
+
+resources:
+  network:
+    type: OS::Neutron::Net
+    properties:
+      name: {{ cloud_vpn_name }}-responder-network
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: {{ cloud_vpn_name }}-responder-subnet
+      network_id: { get_resource: network }
+      cidr: {{ cloud_vpn_responder_cidr }}
+      dns_nameservers: [ "8.8.8.8", "8.8.4.4" ]
+outputs:
+  network_id:
+    value: { get_resource: network } 
+  subnet_id:
+    value: { get_resource: subnet }

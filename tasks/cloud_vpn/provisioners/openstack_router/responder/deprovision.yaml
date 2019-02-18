@@ -1,0 +1,5 @@
+- name: Delete responder router stack
+  os_stack:
+    cloud: "{{ cloud_vpn_responder_openstack_cloud }}"
+    name: "{{ cloud_vpn_name }}-responder-router-stack"
+    state: absent
