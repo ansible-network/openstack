@@ -1,6 +1,6 @@
 # openstack
 
-This Ansible Network role provides a set of platform dependent fuctions that
+This Ansible Network role provides a set of platform dependent functions that
 are designed to work with OpenStack.
 
 ## Requirements
